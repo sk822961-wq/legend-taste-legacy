@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Star, Leaf, Flame } from "lucide-react";
+import { Link } from "react-router-dom";
 import pizzaImage from "@/assets/pizza.jpg";
 import burgerImage from "@/assets/burger.jpg";
 import noodlesImage from "@/assets/noodles.jpg";
@@ -151,9 +152,11 @@ const Menu = () => {
                   <span className="text-sm font-medium text-primary bg-secondary px-3 py-1 rounded-full">
                     {item.category}
                   </span>
-                  <Button variant="menu" size="sm">
-                    Order Now
-                  </Button>
+                  <Link to="/checkout">
+                    <Button variant="menu" size="sm">
+                      Order Now
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>

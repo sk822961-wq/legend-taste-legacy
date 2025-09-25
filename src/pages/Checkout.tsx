@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, CreditCard, Smartphone, Wallet, Banknote } from "lucide-react";
+import { ArrowLeft, CreditCard, Smartphone, Wallet, Banknote, Plus, Minus, Trash2, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const checkoutSchema = z.object({
@@ -31,8 +31,16 @@ const checkoutSchema = z.object({
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
-// Mock cart data
-const cartItems = [
+interface CartItem {
+  id: number;
+  name: string;
+  image: string;
+  price: number;
+  quantity: number;
+}
+
+// Initial cart data
+const initialCartItems: CartItem[] = [
   {
     id: 1,
     name: "Margherita Pizza",
@@ -57,6 +65,7 @@ const cartItems = [
 ];
 
 const Checkout = () => {
+  const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -74,12 +83,44 @@ const Checkout = () => {
 
   const paymentMethod = form.watch("paymentMethod");
 
+  // Cart management functions
+  const updateQuantity = (id: number, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      removeItem(id);
+      return;
+    }
+    setCartItems(prev => 
+      prev.map(item => 
+        item.id === id ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
+
+  const removeItem = (id: number) => {
+    setCartItems(prev => prev.filter(item => item.id !== id));
+    toast({
+      title: "Item Removed",
+      description: "Item has been removed from your cart.",
+      duration: 2000,
+    });
+  };
+
   const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   const deliveryCharges = subtotal > 500 ? 0 : 40;
   const taxes = Math.round(subtotal * 0.05); // 5% tax
   const total = subtotal + deliveryCharges + taxes;
 
   const onSubmit = async (data: CheckoutFormData) => {
+    if (cartItems.length === 0) {
+      toast({
+        title: "Cart is Empty",
+        description: "Please add items to your cart before placing an order.",
+        variant: "destructive",
+        duration: 3000,
+      });
+      return;
+    }
+
     setIsLoading(true);
     
     // Simulate processing delay
@@ -132,45 +173,92 @@ const Checkout = () => {
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Order Summary */}
             <div className="bg-card rounded-lg p-6 shadow-card border border-border/20 h-fit">
-              <h2 className="text-xl font-semibold text-foreground mb-6">Order Summary</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-foreground">Order Summary</h2>
+                <Link to="/#menu">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <ShoppingCart className="w-4 h-4" />
+                    Add More Items
+                  </Button>
+                </Link>
+              </div>
               
-              <div className="space-y-4 mb-6">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="flex items-center gap-4 p-3 bg-background/50 rounded-lg">
-                    <img 
-                      src={item.image} 
-                      alt={item.name}
-                      className="w-16 h-16 object-cover rounded-lg"
-                    />
-                    <div className="flex-1">
-                      <h3 className="font-medium text-foreground">{item.name}</h3>
-                      <p className="text-muted-foreground">Qty: {item.quantity}</p>
+              {cartItems.length === 0 ? (
+                <div className="text-center py-8">
+                  <ShoppingCart className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground mb-4">Your cart is empty</p>
+                  <Link to="/#menu">
+                    <Button variant="outline">Add Items to Cart</Button>
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-4 mb-6">
+                    {cartItems.map((item) => (
+                      <div key={item.id} className="flex items-center gap-4 p-3 bg-background/50 rounded-lg">
+                        <img 
+                          src={item.image} 
+                          alt={item.name}
+                          className="w-16 h-16 object-cover rounded-lg"
+                        />
+                        <div className="flex-1">
+                          <h3 className="font-medium text-foreground">{item.name}</h3>
+                          <p className="text-muted-foreground">₹{item.price} each</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          >
+                            <Minus className="w-4 h-4" />
+                          </Button>
+                          <span className="w-8 text-center font-medium">{item.quantity}</span>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-foreground">₹{item.price * item.quantity}</p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive/80 p-1 h-auto"
+                            onClick={() => removeItem(item.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="border-t border-border/20 pt-4 space-y-2">
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Subtotal</span>
+                      <span>₹{subtotal}</span>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-foreground">₹{item.price * item.quantity}</p>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Delivery Charges</span>
+                      <span>{deliveryCharges === 0 ? "FREE" : `₹${deliveryCharges}`}</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Taxes</span>
+                      <span>₹{taxes}</span>
+                    </div>
+                    <div className="flex justify-between text-lg font-bold text-foreground border-t border-border/20 pt-2">
+                      <span>Total</span>
+                      <span>₹{total}</span>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              <div className="border-t border-border/20 pt-4 space-y-2">
-                <div className="flex justify-between text-muted-foreground">
-                  <span>Subtotal</span>
-                  <span>₹{subtotal}</span>
-                </div>
-                <div className="flex justify-between text-muted-foreground">
-                  <span>Delivery Charges</span>
-                  <span>{deliveryCharges === 0 ? "FREE" : `₹${deliveryCharges}`}</span>
-                </div>
-                <div className="flex justify-between text-muted-foreground">
-                  <span>Taxes</span>
-                  <span>₹{taxes}</span>
-                </div>
-                <div className="flex justify-between text-lg font-bold text-foreground border-t border-border/20 pt-2">
-                  <span>Total</span>
-                  <span>₹{total}</span>
-                </div>
-              </div>
+                </>
+              )}
             </div>
 
             {/* Checkout Form */}
@@ -311,7 +399,7 @@ const Checkout = () => {
                   <Button 
                     type="submit" 
                     className="w-full text-lg py-6"
-                    disabled={isLoading}
+                    disabled={isLoading || cartItems.length === 0}
                     variant="gold"
                   >
                     {isLoading ? "Processing..." : `Complete Order & Pay ₹${total}`}

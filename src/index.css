@@ -43,6 +43,11 @@ All colors MUST be HSL.
     --gold: 45 85% 65%;
     --sage: 120 25% 45%;
     
+    /* Menu Page Colors */
+    --menu-orange: 25 95% 60%;
+    --menu-red: 0 85% 55%;
+    --menu-yellow: 50 95% 70%;
+    
     /* Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(25 40% 20% / 0.9), hsl(25 30% 25% / 0.7));
     --gradient-card: linear-gradient(145deg, hsl(45 40% 96%), hsl(45 30% 92%));

@@ -57,6 +57,11 @@ export default {
 				'ivory': 'hsl(var(--ivory))',
 				'gold': 'hsl(var(--gold))',
 				'sage': 'hsl(var(--sage))',
+				
+				// Menu Page Colors
+				'menu-orange': 'hsl(var(--menu-orange))',
+				'menu-red': 'hsl(var(--menu-red))',
+				'menu-yellow': 'hsl(var(--menu-yellow))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',

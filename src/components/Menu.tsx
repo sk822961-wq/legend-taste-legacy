@@ -165,9 +165,11 @@ const Menu = () => {
 
         {/* CTA Section */}
         <div className="text-center">
-          <Button variant="gold" size="lg" className="text-lg px-8 py-4">
-            View Full Menu
-          </Button>
+          <Link to="/menu">
+            <Button variant="gold" size="lg" className="text-lg px-8 py-4">
+              Explore Our Menu
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

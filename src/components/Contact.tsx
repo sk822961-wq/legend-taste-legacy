@@ -9,7 +9,7 @@ const Contact = () => {
     {
       icon: MapPin,
       title: "Location",
-      content: "123 Culinary Street, Downtown District, Mumbai, India",
+      content: "Parao, Chandauli, Uttar Pradesh, India",
     },
     {
       icon: Phone,
@@ -148,7 +148,7 @@ const Contact = () => {
                   Interactive map will be integrated here
                 </p>
                 <p className="text-sm text-muted-foreground mt-2">
-                  123 Culinary Street, Downtown District, Mumbai
+                  Parao, Chandauli, Uttar Pradesh, India
                 </p>
               </div>
             </div>

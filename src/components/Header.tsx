@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Phone } from "lucide-react";
+import { Menu, X, Phone, ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { Link } from "react-router-dom";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { getTotalItems } = useCart();
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -50,6 +53,17 @@ const Header = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center space-x-4">
+            <Link to="/cart">
+              <Button variant="outline" size="sm" className="relative">
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                Cart
+                {getTotalItems() > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {getTotalItems()}
+                  </span>
+                )}
+              </Button>
+            </Link>
             <Button variant="outline" size="sm">
               <Phone className="w-4 h-4 mr-2" />
               Call Now
@@ -72,6 +86,17 @@ const Header = () => {
                   {item.name}
                 </a>)}
               <div className="flex flex-col space-y-3 mt-4">
+                <Link to="/cart" onClick={() => setIsMenuOpen(false)}>
+                  <Button variant="outline" size="sm" className="w-full relative">
+                    <ShoppingCart className="w-4 h-4 mr-2" />
+                    Cart
+                    {getTotalItems() > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {getTotalItems()}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
                 <Button variant="outline" size="sm">
                   <Phone className="w-4 h-4 mr-2" />
                   Call Now

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Filter, Search, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useCart } from "@/contexts/CartContext";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -22,6 +23,7 @@ const MenuCategories = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
+  const { addToCart } = useCart();
 
   // Comprehensive menu with 100 items
   const menuItems = [
@@ -264,7 +266,18 @@ const MenuCategories = () => {
                   <span className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded-full">
                     {item.category}
                   </span>
-                  <Button size="sm" variant="default" className="gap-2">
+                  <Button 
+                    size="sm" 
+                    variant="default" 
+                    className="gap-2"
+                    onClick={() => addToCart({
+                      id: item.id,
+                      name: item.name,
+                      price: item.price,
+                      image: item.image,
+                      category: item.category
+                    })}
+                  >
                     <ShoppingCart className="w-4 h-4" />
                     Add to Cart
                   </Button>
@@ -297,8 +310,9 @@ const MenuCategories = () => {
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
             Add your favorite items to cart and enjoy delicious food delivered to your doorstep
           </p>
-          <Link to="/checkout">
+          <Link to="/cart">
             <Button size="lg" className="bg-gradient-gold hover:shadow-gold">
+              <ShoppingCart className="w-4 h-4 mr-2" />
               View Cart & Checkout
             </Button>
           </Link>

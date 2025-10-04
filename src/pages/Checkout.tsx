@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, CreditCard, Smartphone, Wallet, Banknote, Plus, Minus, Trash2, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useCart } from "@/contexts/CartContext";
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -65,7 +66,7 @@ const initialCartItems: CartItem[] = [
 ];
 
 const Checkout = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
+  const { cartItems, updateQuantity, removeFromCart, getTotalPrice, clearCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -83,30 +84,8 @@ const Checkout = () => {
 
   const paymentMethod = form.watch("paymentMethod");
 
-  // Cart management functions
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      removeItem(id);
-      return;
-    }
-    setCartItems(prev => 
-      prev.map(item => 
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
-  };
-
-  const removeItem = (id: number) => {
-    setCartItems(prev => prev.filter(item => item.id !== id));
-    toast({
-      title: "Item Removed",
-      description: "Item has been removed from your cart.",
-      duration: 2000,
-    });
-  };
-
-  const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  const deliveryCharges = subtotal > 500 ? 0 : 40;
+  const subtotal = getTotalPrice();
+  const deliveryCharges = subtotal > 500 ? 0 : 50;
   const taxes = Math.round(subtotal * 0.05); // 5% tax
   const total = subtotal + deliveryCharges + taxes;
 
@@ -140,6 +119,7 @@ const Checkout = () => {
       });
     }
     
+    clearCart();
     setIsLoading(false);
     form.reset();
   };
@@ -230,7 +210,7 @@ const Checkout = () => {
                             variant="ghost"
                             size="sm"
                             className="text-destructive hover:text-destructive/80 p-1 h-auto"
-                            onClick={() => removeItem(item.id)}
+                            onClick={() => removeFromCart(item.id)}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
